@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visites</title>
+    <style>
+        /* Reset default margin and padding */
+        body,
+        h1 {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Set background color and font properties */
+        body {
+            background-color: #87CEEB;
+            /* Sky blue background */
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Style the title */
+        h1 {
+            font-family: 'Helvetica', serif;
+            color: #FFFFFF;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px #000000;
+        }
+
+        /* Style the iframe */
+        iframe {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Calendari de visites</h1>
+
+    <!-- Embedded Google Calendar -->
+    <iframe
+        src="https://calendar.google.com/calendar/embed?src=28c5781947f08d63b23db490ddf0d935b936cb1484c3d42e5ae950a550bce292%40group.calendar.google.com&ctz=Europe%2FMadrid"
+        style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+</body>
+
+</html>
