@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A from-scratch Qiskit implementation of Shor's factoring algorithm, built around a 2n+3 qubit order-finding circuit.">
+  <meta name="keywords" content="Shor's Algorithm, Quantum Computing, Qiskit, Quantum Fourier Transform, Integer Factorization, RSA, KTH">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A from-scratch Qiskit implementation of Shor's Factoring Algorithm</title>
+
+  <!-- Google Analytics: paste your own gtag.js snippet here, or remove this comment. -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script>
+    window.MathJax = {
+      tex: {
+        macros: {
+          ket: ["\\left|\\,#1\\,\\right\\rangle", 1],
+          bra: ["\\left\\langle\\,#1\\,\\right|", 1],
+          braket: ["\\left\\langle\\,#1\\,\\right\\rangle", 1]
+        },
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- TODO: point this at your portfolio home once the site is deployed. -->
+      <a class="navbar-item" href="#">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">A from-scratch Qiskit implementation of Shor's Factoring Algorithm</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/florian-immig/">Florian Jerome Immig</a>,</span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/georgios-vidalakis/">Georgios Vidalakis</a>,</span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/roger-vendrell-colet/">Roger Vendrell Colet</a>
+            </span>
+          </div>
+
+          <div class="is-size-6 kth-note">
+            A project we built as students [2024] at KTH Royal Institute of Technology.
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="./static/pdf/shors-algorithm-report.pdf" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Report</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/rogervendrell/shors-algorithm-from-scratch" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img class="teaser-image"
+           src="./static/images/teaser-circuit.svg"
+           alt="Diagram: a number goes into a quantum order-finding circuit, which reveals a hidden period, which is used to compute the number's two prime factors.">
+      <h2 class="subtitle has-text-centered">
+        <span class="project-name">Shor's Algorithm</span> factors integers in polynomial time on a quantum
+        computer. This is a from-scratch Qiskit implementation of its quantum order-finding circuit, built
+        gate by gate and shown here factoring 15, 21, and 33 on a quantum simulator.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Integer factorization is believed to be intractable for classical computers, a fact that
+            RSA encryption relies on directly. In 1994, Peter Shor showed that a quantum computer can
+            factor integers in polynomial time by solving the related order-finding problem with a
+            dedicated quantum circuit. In this project we implement Shor's algorithm from scratch in
+            Qiskit, following Beauregard's design<sup class="citation"><a href="#ref-2">[2]</a></sup> for an
+            order-finding circuit that uses only $2n+3$ qubits, the minimum known for a
+            general-purpose implementation. We build every
+            gate the circuit needs from first principles (the quantum Fourier transform, an adder, a
+            modular adder, a controlled multiplier, and a controlled swap), verify each of them with
+            targeted tests, and use the resulting circuit to successfully factor 15, 21, and 33 on a
+            state-vector simulator.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">The Problem: Integer Factorization</h2>
+    <p>
+      Factoring an integer into its prime components is easy to state but, as far as anyone knows,
+      impossible to solve efficiently on a classical computer: no algorithm exists today that factors
+      integers in polynomial time. That hardness isn't just a curiosity: cryptosystems such as the RSA
+      algorithm, named for Rivest, Shamir, and Adleman, rely on it directly, encrypting data under the
+      assumption that factoring the product of two large primes is computationally infeasible.
+    </p>
+    <p>
+      Shor's algorithm, first proposed by Peter Shor in 1994<sup class="citation"><a href="#ref-1">[1]</a></sup>,
+      changes this picture: it factors integers in polynomial time by reducing factorization to
+      order-finding, a problem a quantum computer can solve efficiently but a classical one cannot. A
+      large enough, fault-tolerant quantum computer running Shor's algorithm could therefore break RSA
+      outright.
+    </p>
+    <p>
+      Today's quantum hardware is nowhere near that point. The number of qubits available is still the
+      binding constraint, so most research, including this project, focuses on reducing how many
+      qubits the algorithm needs, rather than on factoring numbers of any practical size.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content steps">
+    <h2 class="title is-3">Method</h2>
+    <p>
+      We implement Shor's algorithm in Python and Qiskit, following a paper by
+      Beauregard<sup class="citation"><a href="#ref-2">[2]</a></sup> that describes a circuit for
+      the order-finding step using $2n+3$ qubits. The full algorithm,
+      including its classical bookkeeping, is as follows, where $N$ is the number to be factored:
+    </p>
+    <ol>
+      <li>If $N$ is even, return $2$ as a factor.</li>
+      <li>Check whether $N = p^q$ for $p \geq 1,\ q \geq 2$; if so, return $p$ as a factor.</li>
+      <li>Choose a random $a$ such that $1 < a \leq N-1$. Compute $\gcd(a, N)$; if $\gcd(a, N) > 1$
+        ($a$ and $N$ are not coprime), return that common factor.</li>
+      <li>Use the quantum order-finding circuit to find the order $r$ of $a \bmod N$: the smallest
+        positive integer satisfying $a^r \equiv 1 \pmod{N}$.</li>
+      <li>If $r$ is odd, or $r$ is even but $a^{r/2} \equiv -1 \pmod{N}$, start over from step 3.
+        Otherwise compute $\gcd(a^{r/2}-1, N)$ and $\gcd(a^{r/2}+1, N)$; if either is a non-trivial
+        factor of $N$, return it.</li>
+    </ol>
+    <p>
+      Repeatedly calling this algorithm yields the full prime factorization of $N$. Steps 1, 2, 3, and
+      5 are entirely classical; only step 4 needs a quantum computer, since it is the only known way
+      to find the order $r$ in polynomial time.
+    </p>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">The Order-Finding Algorithm</h2>
+    <p>
+      Our implementation builds up the order-finding circuit one gate at a time, each new gate reusing
+      the ones built before it. That let us test every gate in isolation before relying on it to build
+      the next one.
+    </p>
+
+    <div class="subsection">
+      <h3 class="title is-4">Quantum Fourier transform</h3>
+      <p>
+        The first gate we need is the quantum Fourier transform (QFT), the quantum analog of the
+        discrete Fourier transform. It encodes integers as phase shifts instead of basis states. State
+        $\ket{0}$ in the ordinary encoding maps to $\ket{\phi(0)}$ in what we call the Fourier ($\phi$-)
+        space: no phase shifts at all. $\ket{\phi(1)}$ is represented by consecutive phase shifts of
+        $\pi$ radians each, $\ket{\phi(2)}$ by shifts of $\pi/2$ radians, and so on as the resolution of
+        the phase shifts increases.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/qft/effect.png" alt="Effect of applying the QFT to a register holding state |0>.">
+          <figcaption>Effect of applying the QFT to a register holding state $\ket{0}$.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/qft/circuit.png" alt="QFT circuit implementation on 3 qubits.">
+          <figcaption>Our QFT implementation, on 3 qubits.</figcaption>
+        </figure>
+      </div>
+      <p>
+        The QFT only needs Hadamard gates and controlled phase gates, applied recursively: apply a
+        Hadamard to the most-significant qubit, apply a set of rotations each controlled by one of the
+        remaining qubits, discard the most-significant qubit, and repeat with $n-1$ qubits. We tested
+        the gate by encoding arbitrary integers into the $\phi$-space and confirming that the inverse
+        QFT could recover them.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Adder gate</h3>
+      <p>
+        With integers encoded in the $\phi$-space, we can implement arithmetic. The adder gate performs
+        addition in Fourier space; run in reverse, it performs subtraction.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/adder/paper.png" alt="Effect of addition in the Fourier space.">
+          <figcaption>Effect of addition.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/adder/inverseadd.png" alt="Effect of inverse addition (subtraction) in the Fourier space.">
+          <figcaption>Effect of inverse addition.</figcaption>
+        </figure>
+      </div>
+      <p class="figure-note">A compact representation of the adder gate, from Beauregard's paper.</p>
+      <p>
+        Addition in the $\phi$-space turns out to be a handful of per-qubit rotations. Adding the
+        integer 5 to a 3-qubit register already in the $\phi$-space, for example, takes 3 rotations,
+        which can be left uncontrolled or controlled by one or two qubits as needed.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/adder/circuit.png" alt="phi-ADD(5) circuit on a 3-qubit register.">
+          <figcaption>$\phi$ADD(5)</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/adder/controlled_circuit.png" alt="Controlled phi-ADD(5) circuit.">
+          <figcaption>Controlled $\phi$ADD(5)</figcaption>
+        </figure>
+      </div>
+      <p class="figure-note">Our implementation of the adder gate on 3-qubit registers.</p>
+      <p>
+        We tested both the adder and its inverse by encoding a register into the $\phi$-space with the
+        QFT, applying addition or subtraction, and using the inverse QFT to check the result; subtraction
+        needed a bit more care around the edge cases.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Modular adder gate</h3>
+      <p>
+        The modular adder gate builds on the plain adder above to compute $(b + a) \bmod N$. It runs
+        the ordinary adder together with an extra ancilla qubit that tracks whether the addition
+        overflowed past $N$, using that information to conditionally subtract $N$ back off, so the
+        result always wraps around modulo $N$ instead of overflowing.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/modular_adder/paper.png" alt="Compact representation of the modular adder gate.">
+          <figcaption>Compact representation, from Beauregard's paper.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/modular_adder/circuit.png" alt="Our implementation of the modular adder gate.">
+          <figcaption>Our implementation.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Controlled multiplier gate</h3>
+      <p>
+        The controlled multiplier gate implements controlled modular multiply-and-add. Given two
+        quantum registers $x$ and $b$ and a control qubit $c$, it maps
+        $\ket{x}\ket{b} \to \ket{x}\ket{(b + a\cdot x) \bmod N}$ whenever $c=1$, for classical, known
+        $a$ and $N$. If $b$ starts at $0$, the $b$ register simply becomes $(a \cdot x) \bmod N$.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/controlled_multiplier/paper.png" alt="Compact representation of the controlled multiplier gate.">
+          <figcaption>Compact representation, from Beauregard's paper.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/controlled_multiplier/circuit.png" alt="Our implementation of the controlled multiplier gate.">
+          <figcaption>Our implementation.</figcaption>
+        </figure>
+      </div>
+      <p>
+        It reuses the gates built so far: a QFT moves the $b$ register into the $\phi$-space, then a
+        chain of doubly-controlled modular adders is applied (the $i$-th controlled by both $c$ and the
+        $i$-th qubit of $x$) before an inverse QFT moves $b$ back to the regular space. We tested it
+        with randomized state-vector simulations, sweeping the control qubit over $0$ and $1$ and $x, b$
+        over random integers.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Controlled multi-qubit swap gate</h3>
+      <p>
+        The simplest gate in the series: it swaps the contents of two equally-sized registers, controlled
+        by an extra qubit. Under the hood it's just a chain of controlled swaps, each pairing qubits of
+        matching significance across the two registers.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/controlled_multi_qubit_swap/paper.png" alt="Compact representation of the controlled multi-qubit swap gate.">
+          <figcaption>Compact representation, from Beauregard's paper.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/controlled_multi_qubit_swap/circuit.png" alt="Our implementation of the controlled multi-qubit swap gate.">
+          <figcaption>Our implementation.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Controlled $U_a$ gate</h3>
+      <p>
+        The controlled multiplier gate gets us to $\ket{x}\ket{b} \to \ket{x}\ket{b+(a\cdot x)\bmod N}$.
+        What order-finding actually needs is a gate that takes $\ket{x} \to \ket{a\cdot x \bmod N}$:
+        the controlled $U_a$ gate.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/U_a/paper.png" alt="Compact representation of the U_a gate.">
+          <figcaption>Compact representation, from Beauregard's paper.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/U_a/circuit.png" alt="Our implementation of the controlled U_a gate.">
+          <figcaption>Our implementation.</figcaption>
+        </figure>
+      </div>
+      <p>
+        It chains a $\mathrm{CMULT}(a) \bmod N$ operation, a controlled swap, and an inverse
+        $\mathrm{CMULT}(a^{-1} \bmod N)$ operation, taking $\ket{x}\ket{0}$ to
+        $\ket{(a\cdot x)\bmod N}\ket{0}$:
+      </p>
+      $$
+      \begin{aligned}
+      \ket{x}\ket{0}
+        &\to \ket{x}\ket{(a \cdot x)\bmod N} \\
+        &\to \ket{(a \cdot x) \bmod N}\ket{x} \\
+        &\to \ket{(a \cdot x) \bmod N}\ket{(x - a^{-1} \cdot a \cdot x) \bmod N} \\
+        &= \ket{(a \cdot x) \bmod N}\ket{0}
+      \end{aligned}
+      $$
+      <p>
+        We tested it by checking both registers came out correctly for a range of $x$, $a$, $N$, and
+        register sizes.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Quantum circuit with $4n + 2$ qubits</h3>
+      <p>
+        To find the order of $a \bmod N$, we put $2n$ qubits into an equal superposition with Hadamard
+        gates, then use them to control a sequence of $U_a$ gates, the $i$-th one applying
+        $U_a(a^i \bmod N)$. This shifts the phases of the first $2n$ qubits so that, after an inverse
+        QFT, some measurement outcomes become much more likely than others. Measuring those $2n$ qubits
+        then reveals the period of $a$ directly, as we'll see in the results below.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/method/circuit_4n_plus_2/circuit.png" alt="The order-finding circuit using 4n+2 qubits.">
+        <figcaption>Our order-finding circuit, using $4n + 2$ qubits.</figcaption>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Quantum circuit with $2n + 3$ qubits: the one-qubit trick</h3>
+      <p>
+        The qubit count can be reduced further with the "one-qubit trick", which merges the first $2n$
+        qubits of the circuit above into a single, reused qubit, without changing the distribution over
+        measurement outcomes. It relies on two facts.
+      </p>
+      <p>
+        First, consider the $2n$ qubits that get an inverse QFT applied before being measured. By
+        the deferred measurement principle<sup class="citation"><a href="#ref-3">[3]</a></sup>,
+        an equivalent circuit is obtained by moving each measurement earlier, right before that qubit's
+        controlled-phase gates, and making those gates classically controlled by the measurement outcome
+        instead. Second, once measurements happen this early, the $2n$ qubits can be merged into one,
+        since nothing later in the circuit depends on more than one of them being alive at a time.
+      </p>
+      <div class="figure-stack">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/circuit_2n_plus_3/trick_initial.png" alt="The IQFT and measurement circuit part, initially.">
+          <figcaption>The inverse QFT and measurement part, initially.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/circuit_2n_plus_3/trick_after_principle.png" alt="After applying the deferred measurement principle.">
+          <figcaption>After applying the deferred measurement principle.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/circuit_2n_plus_3/trick_after_merge.png" alt="After merging the qubits.">
+          <figcaption>After merging the $2n$ qubits into one.</figcaption>
+        </figure>
+      </div>
+      <p>
+        Applying this trick to the $4n+2$-qubit circuit, and accounting for the $U_a$ gates, yields an
+        equivalent circuit with just $2n + 3$ qubits, the minimum known for a general-purpose
+        order-finding circuit.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Results</h2>
+    <p>
+      We evaluated the circuit on a quantum simulator, factoring 15, 21, and 33 with a fixed choice of
+      $a$ for simplicity.
+    </p>
+
+    <div class="result-step">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/results_1.png" alt="Measurement counts for factoring 15 with a=2.">
+        <figcaption>Factoring 15 with $a=2$.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          Factoring 15 with $a=2$ (200 shots, under a second to run) gives $r=4$ spikes in the counts.
+        </p>
+        $$
+        \begin{aligned}
+        \gcd(N, a^{r/2}-1) &= \gcd(15,\ 2^{4/2}-1) = \gcd(15,3) = 3 \neq 1 \\
+        \gcd(N, a^{r/2}+1) &= \gcd(15,\ 2^{4/2}+1) = \gcd(15,3) = 5 \neq 1
+        \end{aligned}
+        $$
+        <p>
+          Both candidates divide 15, and $3 \times 5 = 15$, confirming the factorization.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step reverse">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/results_2.png" alt="Measurement counts for factoring 21 with a=2.">
+        <figcaption>Factoring 21 with $a=2$.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          Factoring $N=21$ with $a=2$ (200 shots, roughly 10 seconds) gives $r=6$. The same calculation
+          yields candidates 3 and 7, both divisors of 21, and $7 \times 3 = 21$ confirms the
+          factorization.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/results_3.png" alt="Measurement counts attempting to factor 33 with a=2.">
+        <figcaption>Attempting to factor 33 with $a=2$.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          Factoring $N=33$ with $a=2$ is trickier: some peaks straddle two integers (highlighted in red
+          in the report) and need to be combined into bins of size two to read off the correct
+          $r=10$. But this $a$ doesn't work: $a^{r/2} = 2^5 = 32 \equiv -1 \pmod{33}$, so step 5 of
+          the algorithm sends us back to try a different $a$.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step reverse">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/results_4.png" alt="Measurement counts for factoring 33 with a=5.">
+        <figcaption>Factoring 33 with $a=5$.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          Trying again with $a=5$ gives $r=10$ once more, but this time
+          $a^{r/2} = 5^5 = 3125 \equiv 23 \pmod{33} \neq -1$, so the algorithm can proceed. The
+          resulting candidates 3 and 11 both divide 33, and $3 \times 11 = 33$ confirms the
+          factorization.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Discussion</h2>
+    <p>
+      We ended up with a working implementation of Shor's algorithm, but several things stand in the
+      way of using it, or a variant of it, to factor genuinely large integers.
+    </p>
+    <p>
+      Factoring still requires a large number of qubits, and integers of the size used in real
+      cryptographic keys are far out of reach for today's hardware. Closing that gap means both reducing
+      the qubit count the circuit needs and building quantum computers with more qubits to spare.
+    </p>
+    <p>
+      The bigger obstacle, though, is quantum error correction: as the numbers being factored grow, the
+      circuit depth grows with them, and reliably running a deeper circuit demands a large number of
+      additional qubits dedicated purely to error correction.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">References</h2>
+    <ol class="references-list">
+      <li id="ref-1">
+        P. W. Shor. "Algorithms for quantum computation: discrete logarithms and factoring."
+        <em>Proceedings 35th Annual Symposium on Foundations of Computer Science</em>, pp. 124-134, 1994.
+        <a href="https://doi.org/10.1109/SFCS.1994.365700" target="_blank" rel="noopener noreferrer">doi.org/10.1109/SFCS.1994.365700</a>
+      </li>
+      <li id="ref-2">
+        S. Beauregard. "Circuit for Shor's algorithm using 2n+3 qubits."
+        <em>Quantum Information &amp; Computation</em>, 3(2):175-185, 2003.
+        <a href="https://arxiv.org/abs/quant-ph/0205095" target="_blank" rel="noopener noreferrer">arXiv:quant-ph/0205095</a>
+      </li>
+      <li id="ref-3">
+        "Deferred measurement principle." Wikipedia.
+        <a href="https://en.wikipedia.org/wiki/Deferred_measurement_principle" target="_blank" rel="noopener noreferrer">en.wikipedia.org/wiki/Deferred_measurement_principle</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="./static/pdf/shors-algorithm-report.pdf" target="_blank" rel="noopener noreferrer">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link external-link" href="https://github.com/rogervendrell/shors-algorithm-from-scratch" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This site is adapted from the
+            <a href="https://nerfies.github.io">Nerfies project page</a>, licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

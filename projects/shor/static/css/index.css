@@ -1,0 +1,282 @@
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+
+.footer .icon-link {
+    font-size: 25px;
+    color: #000;
+}
+
+.link-block a {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.project-name {
+  font-variant: small-caps;
+}
+
+
+.teaser .hero-body {
+  padding-top: 0;
+  padding-bottom: 3rem;
+}
+
+.teaser {
+  font-family: 'Google Sans', sans-serif;
+}
+
+.teaser-image {
+  display: block;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+
+.publication-title {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors a {
+   color: hsl(204, 86%, 53%) !important;
+}
+
+.publication-authors a:hover {
+    text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+.kth-note {
+  margin-top: 0.5rem;
+  color: #777;
+}
+
+
+/* Section rhythm */
+.section > .container > h2.title {
+  margin-top: 1rem;
+}
+
+.subsection {
+  margin-top: 3rem;
+}
+
+.subsection:first-of-type {
+  margin-top: 1.5rem;
+}
+
+
+/* Figure pairs: a compact/reference diagram next to our implementation */
+.figure-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.figure-row.figure-row-thirds .figure-card {
+  flex: 1 1 260px;
+}
+
+.figure-card {
+  background: #f9f9fb;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  flex: 0 1 auto;
+}
+
+.figure-card img {
+  max-height: 260px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.figure-card figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.figure-single {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.figure-single img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.figure-single figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.figure-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.figure-stack .figure-card {
+  width: 100%;
+  max-width: 720px;
+}
+
+.figure-stack .figure-card img {
+  max-height: none;
+  width: 100%;
+}
+
+
+.figure-note {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: -1rem;
+  margin-bottom: 1.25rem;
+}
+
+
+/* Results walkthrough */
+.result-step {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+  margin: 2.5rem 0;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.result-step:last-child {
+  border-bottom: none;
+}
+
+.result-step.reverse {
+  flex-direction: row-reverse;
+}
+
+.result-step .result-figure {
+  flex: 1 1 380px;
+}
+
+.result-step .result-figure img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.result-step .result-text {
+  flex: 1 1 320px;
+}
+
+.result-step .result-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+
+/* Team / contributions */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.team-card {
+  background: #f9f9fb;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+
+.team-card h4 {
+  font-family: 'Google Sans', sans-serif;
+  margin-bottom: 0.25rem;
+}
+
+.team-card a {
+  color: hsl(204, 86%, 40%);
+}
+
+.team-linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: hsl(204, 86%, 40%);
+}
+
+.team-linkedin:hover {
+  text-decoration: underline;
+}
+
+
+.section.alt-bg {
+  background: #fafafa;
+}
+
+
+/* Citations */
+sup.citation a {
+  color: hsl(204, 86%, 40%);
+  text-decoration: none;
+}
+
+sup.citation a:hover {
+  text-decoration: underline;
+}
+
+.references-list {
+  padding-left: 1.5rem;
+}
+
+.references-list li {
+  margin-bottom: 1rem;
+}
+
+.references-list li:target {
+  background: #fff7d6;
+}
+
+
+/* Algorithm steps */
+.steps ol {
+  padding-left: 1.25rem;
+}
+
+.steps li {
+  margin-bottom: 0.5rem;
+}
+
+
+@media screen and (max-width: 768px) {
+  .result-step, .result-step.reverse {
+    flex-direction: column;
+  }
+}
