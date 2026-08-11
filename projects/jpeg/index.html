@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A from-scratch DCT-based image and video compression pipeline: quantization, zigzag scanning, and Huffman coding, following the design of the JPEG standard.">
+  <meta name="keywords" content="JPEG, Discrete Cosine Transform, DCT, Image Compression, Video Compression, Quantization, Huffman Coding, KTH">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JPEG Image Compression</title>
+
+  <!-- Google Analytics: paste your own gtag.js snippet here, or remove this comment. -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- TODO: point this at your portfolio home once the site is deployed. -->
+      <a class="navbar-item" href="#">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">JPEG Image Compression</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">Roger Vendrell Colet</a>
+            </span>
+          </div>
+
+          <div class="is-size-6 kth-note">
+            Built as a student [2025] at KTH Royal Institute of Technology.
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- Code Link. TODO: replace with the real repository URL once it's published. -->
+              <span class="link-block">
+                <a href="#" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img class="teaser-image"
+           src="./static/images/project/method/basis_2d_grid.png"
+           alt="An 8x8 grid of 64 two-dimensional DCT basis patterns, ranging from a flat gray square to fine checkerboards.">
+      <h2 class="subtitle has-text-centered">
+        <span class="project-name">JPEG-style compression</span> represents an image patch as a weighted sum of
+        these 64 frequency patterns, then throws away the ones the eye barely notices. This project builds that
+        pipeline from scratch, DCT, quantization, zigzag scanning, and Huffman coding, and extends it to video by
+        compressing the difference between consecutive frames instead of raw pixels.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Digital images and video carry a lot of redundancy: neighboring pixels are usually similar, and
+            consecutive video frames are often nearly identical. The JPEG standard exploits the first kind of
+            redundancy by transforming small blocks of pixels into frequency space with the discrete cosine
+            transform (DCT), discarding the frequencies the human eye is least sensitive to, and entropy-coding
+            what remains. In this project we implement that pipeline from scratch in Python: an 8x8 DCT, a
+            quality-adjustable quantization step, zigzag scanning with end-of-block coding, and Huffman coding,
+            and use it to compress a single video frame. We then extend the same pipeline to a pair of
+            consecutive frames by compressing their difference instead of the raw pixels, exploiting temporal as
+            well as spatial redundancy, and measure how reconstruction quality and compression ratio trade off
+            against each other as the quantization level changes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">The Problem: Redundant Pixels</h2>
+    <p>
+      A raw video frame stores one intensity value per pixel per color channel, with no regard for how alike
+      neighboring pixels usually are. A patch of sky is hundreds of nearly identical pixels, each stored
+      independently; a patch of grass is dozens of pixels that could largely be predicted from their neighbors.
+      Video adds a second kind of redundancy on top of that: unless something in the scene moves, consecutive
+      frames are nearly identical to one another.
+    </p>
+    <p>
+      JPEG compression, and the video codecs built on similar ideas, exploit both. A block of pixels is
+      converted into frequency space with the DCT, where smooth image regions concentrate almost all of their
+      energy into a handful of low-frequency coefficients. Coarsely quantizing the high-frequency coefficients,
+      which mostly encode detail the eye is not very sensitive to, throws away information cheaply, while
+      entropy coding squeezes what remains further without losing anything at all.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content steps">
+    <h2 class="title is-3">Method</h2>
+    <p>
+      We implement two related pipelines in Python, building the second directly on top of the first:
+    </p>
+    <ol>
+      <li>Extract a frame from a video and convert it to YUV, keeping only the luma (Y) channel.</li>
+      <li>Construct the 2D DCT basis and use it to convert every 8x8 pixel patch of the frame into DCT
+        coefficients.</li>
+      <li>Quantize the coefficients at a chosen quality level, coarsely for high frequencies and finely for
+        low ones.</li>
+      <li>Reconstruct the frame with the inverse DCT and measure the reconstruction's quality with PSNR.</li>
+      <li>Repeat the same process on the <em>difference</em> between two consecutive frames instead of a
+        single frame.</li>
+      <li>Flatten each patch's coefficients with a zigzag scan and truncate the trailing zeros with
+        end-of-block coding.</li>
+      <li>Build a Huffman codebook over the surviving coefficients and use it to encode them losslessly.</li>
+      <li>Decode, reconstruct the difference frame, and add it back to the first frame to recover the
+        second.</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Part 1: Compressing a Single Frame</h2>
+
+    <div class="subsection">
+      <h3 class="title is-4">Extracting and converting the frame</h3>
+      <p>
+        We start from frame 80 of a short video clip and convert it from RGB to YUV. JPEG-style compression
+        normally applies to all three channels, but we compress only the luma (Y) channel here: the grayscale
+        component the eye is most sensitive to.
+      </p>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/yuv_y.png" alt="The Y (luma) channel of the extracted frame.">
+          <figcaption>Y (luma)</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/yuv_u.png" alt="The U (chroma) channel of the extracted frame.">
+          <figcaption>U (chroma)</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/yuv_v.png" alt="The V (chroma) channel of the extracted frame.">
+          <figcaption>V (chroma)</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">The 2D DCT basis</h3>
+      <p>
+        The discrete cosine transform represents a block of $N$ samples as a weighted sum of $N$ cosine basis
+        functions of increasing frequency:
+      </p>
+      $$
+      b_k(n) = c_k \cos\left(\frac{\pi k (2n+1)}{2N}\right), \qquad
+      c_k = \begin{cases} \sqrt{1/N} & k = 0 \\ \sqrt{2/N} & k > 0 \end{cases}
+      $$
+      <p>
+        for $n = 0, 1, \ldots, N-1$, with $N=8$ in our case. $c_k$ is just a normalization factor; the shape of
+        each basis function is set entirely by $k$.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/method/basis_1d.png" alt="The eight 1-dimensional DCT basis functions for N=8, from a flat line at k=0 to a fast oscillation at k=7.">
+        <figcaption>The eight 1D basis functions for $N=8$. Higher $k$ means higher frequency.</figcaption>
+      </div>
+      <p>
+        Taking the outer product of every pair of 1D basis functions gives the 64 2D basis patches an 8x8 image
+        patch can be built from. Low-frequency patches, which vary slowly, sit in the top-left of the grid;
+        high-frequency ones, which oscillate quickly in both directions, sit in the bottom-right.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/method/basis_2d_grid.png" alt="The 64 2D DCT basis patches, arranged in an 8x8 grid from low frequency at the top-left to high frequency at the bottom-right.">
+        <figcaption>The 64 2D DCT basis patches. Any 8x8 image patch can be written as a weighted sum of these.</figcaption>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">From pixels to coefficients</h3>
+      <p>
+        The frame is cut into non-overlapping 8x8 patches, 2700 of them for our $360 \times 480$ frame, and each
+        patch's pixel values are shifted from $[0, 255]$ to $[-128, 127]$ to match the basis patches' range. A
+        patch's coefficient for a given basis pattern is then just the element-wise product of the two, summed
+        over all 64 pixels; doing this for all 64 basis patches converts the pixel patch into 64 DCT
+        coefficients.
+      </p>
+      <p>
+        Smooth, low-frequency patches end up with almost all of their energy concentrated in the top-left
+        (low-frequency) coefficients. For example, the nearly flat patch below, with pixel values all around 33
+        or 34, produces the DCT coefficients on the right, only 6 of which are non-zero:
+      </p>
+      <div class="figure-row">
+        <div class="figure-card">
+          <table class="pixel-table">
+            <tr><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td></tr>
+            <tr><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(32,32,32);">32</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td></tr>
+            <tr><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(32,32,32);">32</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td></tr>
+            <tr><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(32,32,32);">32</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(32,32,32);">32</td></tr>
+            <tr><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td></tr>
+            <tr><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(33,33,33);">33</td><td style="background-color: rgb(33,33,33);">33</td></tr>
+            <tr><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td></tr>
+            <tr><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td><td style="background-color: rgb(34,34,34);">34</td></tr>
+          </table>
+          <figcaption>The 8x8 pixel patch, grayscale values in $[0, 255]$.</figcaption>
+        </div>
+        <div class="figure-card">
+          <table class="coef-table">
+            <tr><td>-756</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>-2</td><td>-1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>-1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          </table>
+          <figcaption>Its DCT coefficients. Almost all the energy lands in the first (constant) one.</figcaption>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Quantization</h3>
+      <p>
+        Quantization divides each coefficient, element-wise, by a fixed quantization matrix $Q$ and rounds the
+        result. $Q$ has small values in the top-left and large ones in the bottom-right, so it barely touches
+        low-frequency coefficients while aggressively rounding high-frequency ones towards zero, the frequencies
+        the image usually has little energy in anyway and the eye is least sensitive to:
+      </p>
+      <div class="figure-card" style="margin: 1.5rem auto; max-width: 420px;">
+        <table class="matrix-table">
+          <tr><td>16</td><td>11</td><td>10</td><td>16</td><td>24</td><td>40</td><td>51</td><td>61</td></tr>
+          <tr><td>12</td><td>12</td><td>14</td><td>19</td><td>26</td><td>58</td><td>60</td><td>55</td></tr>
+          <tr><td>14</td><td>13</td><td>16</td><td>24</td><td>40</td><td>57</td><td>69</td><td>56</td></tr>
+          <tr><td>14</td><td>17</td><td>22</td><td>29</td><td>51</td><td>87</td><td>80</td><td>62</td></tr>
+          <tr><td>18</td><td>22</td><td>37</td><td>56</td><td>68</td><td>109</td><td>103</td><td>77</td></tr>
+          <tr><td>24</td><td>35</td><td>55</td><td>64</td><td>81</td><td>104</td><td>113</td><td>92</td></tr>
+          <tr><td>49</td><td>64</td><td>78</td><td>87</td><td>103</td><td>121</td><td>120</td><td>101</td></tr>
+          <tr><td>72</td><td>92</td><td>95</td><td>98</td><td>112</td><td>100</td><td>103</td><td>99</td></tr>
+        </table>
+        <figcaption>The base quantization matrix $Q$, used as-is at quality level 50.</figcaption>
+      </div>
+      <p>
+        To make the compression level adjustable, we scale $Q$ by a quality level $q \in (0, 100)$ following a
+        standard rescaling used by many JPEG encoders<sup class="citation"><a href="#ref-4">[4]</a></sup>:
+      </p>
+      $$
+      s = \begin{cases} 5000 / q & q < 50 \\ 200 - 2q & q \geq 50 \end{cases}, \qquad
+      Q'_{ij} = \left\lfloor \frac{s \cdot Q_{ij} + 50}{100} \right\rfloor
+      $$
+      <p>
+        A low $q$ inflates $Q$, quantizing everything but the very lowest frequencies down to zero; a high $q$
+        shrinks it back towards 1, close to lossless. Quantizing the flat patch above at three different quality
+        levels shows the effect directly: only the constant term survives at $q=10$, while $q=90$ keeps two
+        coefficients.
+      </p>
+      <div class="figure-row">
+        <div class="figure-card">
+          <table class="coef-table small"><tr><td>-9</td><td>0</td><td>0</td><td>0</td></tr></table>
+          <figcaption>$q=10$</figcaption>
+        </div>
+        <div class="figure-card">
+          <table class="coef-table small"><tr><td>-47</td><td>0</td><td>0</td><td>0</td></tr></table>
+          <figcaption>$q=50$</figcaption>
+        </div>
+        <div class="figure-card">
+          <table class="coef-table small"><tr><td>-252</td><td>-1</td><td>0</td><td>0</td></tr></table>
+          <figcaption>$q=90$</figcaption>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Reconstruction</h3>
+      <p>
+        Reconstructing a patch reverses the process: each quantized coefficient is scaled back up by its $Q$
+        value, multiplied by its corresponding basis patch, and the 64 results are summed and shifted back by
+        $+128$ into the $[0, 255]$ range.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Results: Part 1</h2>
+
+    <div class="result-step">
+      <figure class="result-figure">
+        <div class="figure-row" style="margin: 0;">
+          <img src="./static/images/project/results/part1_original.png" alt="The original Y frame." style="border-radius: 10px; border: 1px solid #eee; flex: 1 1 0; min-width: 0;">
+          <img src="./static/images/project/results/part1_reconstructed.png" alt="The reconstructed Y frame after DCT compression at quality level 50." style="border-radius: 10px; border: 1px solid #eee; flex: 1 1 0; min-width: 0;">
+        </div>
+        <figcaption>Original (left) vs. reconstructed (right) frame, quality level 50.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          At quality level 50 the reconstructed frame is indistinguishable from the original to the eye, even
+          though most of the 64 coefficients in every patch were quantized down to zero.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step reverse">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/part1_psnr.png" alt="Line plot of PSNR in dB rising from about 29 dB at quality level 10 to about 45 dB at quality level 90.">
+        <figcaption>Reconstruction quality (PSNR) vs. quality level.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          PSNR rises steadily with quality level, from about 29 dB at $q=10$ to almost 45 dB at $q=90$, with
+          diminishing returns as $q$ grows: the biggest quality jumps happen at the low end, right where the
+          quantization matrix is coarsest.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Part 2: Compressing a Sequence of Frames</h2>
+    <p>
+      A single frame is only half the story: video also has a lot of redundancy between consecutive frames.
+      Instead of compressing frame 85 directly, we compress the <em>difference</em> between it and frame 80, and
+      reconstruct frame 85 by adding that difference back. If little has changed between the two frames, the
+      difference is nearly flat, and flat patches are exactly what the DCT compresses best.
+    </p>
+
+    <div class="subsection">
+      <h3 class="title is-4">Frame differencing</h3>
+      <div class="figure-row">
+        <figure class="figure-card">
+          <img src="./static/images/project/results/part2_frame80.png" alt="Y frame 80.">
+          <figcaption>Frame 80</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/results/part2_frame85.png" alt="Y frame 85.">
+          <figcaption>Frame 85</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/results/part2_ydiff.png" alt="The difference between Y frame 85 and Y frame 80, mostly flat gray except where the hand moved.">
+          <figcaption>Difference</figcaption>
+        </figure>
+      </div>
+      <p>
+        The difference frame is almost entirely flat gray (zero difference) except around the hand and mallet,
+        the only part of the scene that moved between frames 80 and 85.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Zigzag scanning and end-of-block coding</h3>
+      <p>
+        After quantization, most of a patch's 64 coefficients are zero, and the non-zero ones cluster near the
+        top-left corner. Reading the 8x8 matrix out in a zigzag order, alternating diagonals instead of row by
+        row, groups those zeros together at the tail of the resulting vector instead of scattering them
+        throughout it.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/method/zigzag.png" alt="An 8x8 grid with a zigzag path connecting cells in the order 1, 2, 3, ..., 64, alternating between diagonals.">
+        <figcaption>The zigzag scan order over an 8x8 patch.</figcaption>
+      </div>
+      <p>
+        Once the zeros are grouped at the end, end-of-block coding simply drops them: instead of transmitting
+        all 64 values, we transmit only the non-zero prefix and let the decoder pad the rest with zeros. A
+        typical patch's coefficients, quantized at quality level 75, shrink from a 64-long vector down to just
+        9 transmitted values:
+      </p>
+      <div class="figure-card" style="margin: 1.5rem auto; max-width: 560px;">
+        <table class="coef-table small">
+          <tr><td>-98</td><td>0</td><td>0</td><td>-3</td><td>5</td><td>-3</td><td>0</td><td>1</td><td>-1</td></tr>
+        </table>
+        <figcaption>9 transmitted coefficients, with the remaining 55 zeros implied.</figcaption>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Huffman coding</h3>
+      <p>
+        The surviving coefficients are still stored as regular integers at this point, which is wasteful: values
+        like 0, 1, and $-1$ show up far more often than large coefficients like $-128$. Huffman coding builds a
+        binary codebook that assigns short codewords to common values and long ones to rare values, compressing
+        the stream losslessly:
+      </p>
+      <div class="figure-card" style="margin: 1.5rem auto; max-width: 420px;">
+        <table class="matrix-table">
+          <tr><th>value</th><td>0</td><td>-1</td><td>1</td><td>-2</td><td>2</td><td>-128</td></tr>
+          <tr><th>code</th><td>0</td><td>100</td><td>1111</td><td>11010</td><td>11000</td><td>1010</td></tr>
+        </table>
+        <figcaption>A sample of the Huffman codebook built over one frame's coefficients.</figcaption>
+      </div>
+      <p>
+        Combining quantization, zigzag scanning, end-of-block coding, and Huffman coding brings a raw 8x8 patch,
+        512 bits at 8 bits per pixel, down to an average of about 18 bits at quality level 75: a roughly
+        96% reduction, and considerably more at lower quality levels.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Decoding and reconstruction</h3>
+      <p>
+        Reconstruction reverses every step in order: Huffman-decode the bitstream, pad each patch back out to 64
+        values, undo the zigzag scan to recover the 8x8 coefficient matrix, then unquantize and apply the
+        inverse DCT as in Part 1. Assembling the resulting patches recovers the difference frame, which we add
+        back onto frame 80 to reconstruct frame 85.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/results/part2_recon_diff.png" alt="The reconstructed difference frame, closely matching the original difference despite the lossy compression.">
+        <figcaption>The difference frame, reconstructed from its Huffman-coded coefficients.</figcaption>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Results: Part 2</h2>
+
+    <div class="result-step">
+      <figure class="result-figure">
+        <div class="figure-row" style="margin: 0;">
+          <img src="./static/images/project/results/part2_original_frame85.png" alt="The original Y frame 85." style="border-radius: 10px; border: 1px solid #eee; flex: 1 1 0; min-width: 0;">
+          <img src="./static/images/project/results/part2_reconstructed_frame85.png" alt="Y frame 85, reconstructed from frame 80 plus the compressed difference." style="border-radius: 10px; border: 1px solid #eee; flex: 1 1 0; min-width: 0;">
+        </div>
+        <figcaption>Original (left) vs. reconstructed (right) frame 85, recovered via frame 80 plus the compressed difference.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          Frame 85, reconstructed purely from frame 80 and a heavily compressed difference frame, is again
+          visually indistinguishable from the original.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step reverse">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/part2_psnr.png" alt="Line plot of PSNR in dB rising from about 30 dB at qlevel 10 to about 45 dB at qlevel 90.">
+        <figcaption>Reconstruction quality (PSNR) vs. quality level.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          The PSNR curve looks similar to Part 1's, but at low quality levels compressing the difference does
+          noticeably better than compressing the raw frame: a mostly flat difference frame is less affected by
+          coarse quantization. At high quality levels the two methods converge, since there is little left for
+          quantization to discard either way.
+        </p>
+      </div>
+    </div>
+
+    <div class="result-step">
+      <figure class="result-figure">
+        <img src="./static/images/project/results/part2_compression_ratio.png" alt="Line plot of compression ratio in percent rising from below 1% at qlevel 10 to about 8% at qlevel 90.">
+        <figcaption>Bits used per patch, as a percentage of the uncompressed 512 bits, vs. quality level.</figcaption>
+      </figure>
+      <div class="result-text">
+        <p>
+          The full pipeline, DCT plus quantization plus zigzag scanning plus end-of-block coding plus Huffman
+          coding, uses only about 0.4% of the raw bit budget at quality level 10, rising to a still-modest 8% at
+          quality level 90 as more coefficients survive quantization and need to be transmitted.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Discussion</h2>
+    <p>
+      The full pipeline reconstructs both a single frame and a pair of consecutive frames with very little
+      visible loss, at a small fraction of the original bit budget, which matches what makes JPEG and JPEG-style
+      video codecs practical in the first place.
+    </p>
+    <p>
+      Compressing the frame difference rather than the raw frame worked well here because nothing in the scene
+      moved very far between frames 80 and 85. Real video codecs handle larger motion with motion compensation:
+      searching each block of the new frame for the best-matching block in the previous one, rather than always
+      comparing the same pixel position. Without that, a panning camera or fast motion would produce a difference
+      frame nearly as busy as the original, and this pipeline would compress it no better than a single frame.
+    </p>
+    <p>
+      We also only compressed the luma channel and worked with a fixed 8x8 patch grid, ignoring the chroma
+      channels and the blocking artifacts a fixed grid introduces at low quality levels, both places a
+      production JPEG or video encoder spends considerable additional effort.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">References</h2>
+    <ol class="references-list">
+      <li id="ref-1">
+        N. Ahmed, T. Natarajan, K. R. Rao. "Discrete Cosine Transform."
+        <em>IEEE Transactions on Computers</em>, C-23(1):90-93, 1974.
+        <a href="https://doi.org/10.1109/T-C.1974.223784" target="_blank" rel="noopener noreferrer">doi.org/10.1109/T-C.1974.223784</a>
+      </li>
+      <li id="ref-2">
+        ITU-T Recommendation T.81 / ISO/IEC 10918-1. "Information technology &mdash; Digital compression and
+        coding of continuous-tone still images &mdash; Requirements and guidelines" (the JPEG standard), 1992.
+      </li>
+      <li id="ref-3">
+        D. A. Huffman. "A Method for the Construction of Minimum-Redundancy Codes."
+        <em>Proceedings of the IRE</em>, 40(9):1098-1101, 1952.
+        <a href="https://doi.org/10.1109/JRPROC.1952.273898" target="_blank" rel="noopener noreferrer">doi.org/10.1109/JRPROC.1952.273898</a>
+      </li>
+      <li id="ref-4">
+        M. Ulhaq. Answer to "How can I generalize the quantization matrix in JPEG compression?" Stack Overflow.
+        <a href="https://stackoverflow.com/questions/29215879/how-can-i-generalize-the-quantization-matrix-in-jpeg-compression" target="_blank" rel="noopener noreferrer">stackoverflow.com/questions/29215879</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <!-- TODO: replace with the real repository URL once it's published. -->
+      <a class="icon-link external-link" href="#" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This site is adapted from the
+            <a href="https://nerfies.github.io">Nerfies project page</a>, licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
