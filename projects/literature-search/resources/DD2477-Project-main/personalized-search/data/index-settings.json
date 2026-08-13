@@ -1,0 +1,18 @@
+{
+    "mappings": {
+      "properties": {
+          "PID": {"type": "keyword"},
+          "Year": {"type": "integer"},
+          "Title": {"type": "text", "analyzer": "english"},
+          "Authors": {
+              "type": "text",
+              "fields": {
+                  "keyword": {"type": "keyword"}
+              }
+          },
+          "Genre": {
+            "type": "keyword"
+            }
+          }
+    }
+  }

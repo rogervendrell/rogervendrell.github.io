@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A semantic and author-personalized search engine for KTH's computer science literature, built with Elasticsearch, sentence transformers, a coauthorship graph, and a learning-to-rank reranker.">
+  <meta name="keywords" content="Information Retrieval, Semantic Search, Elasticsearch, Sentence Transformers, Learning to Rank, Personalized Search, NDCG, Coauthorship Graph, KTH">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semantic and Personalized Search for KTH's Scientific Literature</title>
+
+  <!-- Google Analytics: paste your own gtag.js snippet here, or remove this comment. -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- TODO: point this at your portfolio home once the site is deployed. -->
+      <a class="navbar-item" href="#">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Semantic and Personalized Search<br>for KTH's Scientific Literature</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/georges-tohme-ba901224b/" target="_blank" rel="noopener noreferrer">Georges Tohme</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/annysia-dupaya/" target="_blank" rel="noopener noreferrer">Annysia Dupaya</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/gustaw-siedlarski-747064193/" target="_blank" rel="noopener noreferrer">Gustaw Siedlarski</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">Roger Vendrell Colet</a>
+            </span>
+          </div>
+
+          <div class="is-size-6 kth-note">
+            A project we built as students [2025] at KTH Royal Institute of Technology.
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="./static/pdf/searching-scientific-literature-report.pdf" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Report</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <!-- TODO: point this at the real repository once it's published. -->
+                <a href="#" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img class="teaser-image"
+           src="./static/images/project/method/coauthor_graph_teaser.png"
+           alt="A network graph of KTH Computer Science authors, drawn as a large ring of loosely connected pairs surrounding a dense core of tightly-knit collaboration clusters.">
+      <h2 class="subtitle has-text-centered">
+        <span class="project-name">This project</span> builds a search engine for KTH's Computer Science literature
+        that goes beyond exact keyword matches: dense sentence embeddings retrieve papers by meaning, and a
+        learning-to-rank model then reranks them using a profile of the querying author's own research interests
+        and their position in this coauthorship graph.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Search portals for scientific literature typically rely on exact keyword matches, which struggle
+            whenever a query's wording doesn't happen to line up with a paper's. We build a search engine over
+            the Computer Science subset of KTH's DiVA publication archive that replaces keyword matching with
+            dense sentence embeddings and k-nearest-neighbor retrieval, then layer a personalization step on top:
+            a learning-to-rank model reranks the semantic results using a profile of the querying author's
+            inferred research interests, built from their past publications and their position in a coauthorship
+            graph. Comparing all three retrieval modes, lexical, semantic, and personalized, on a set of manually
+            judged queries, we find that semantic and personalized search generally outperform exact keyword
+            matching, though which of the two wins out depends on how specific or ambiguous the query is.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">The Problem: Exact Keyword Matches Aren't Enough</h2>
+    <p>
+      Portals like KTH's DiVA archive traditionally search scientific literature the same way a plain text
+      search engine would: by matching the words in a query against the words in a paper's title, authors, and
+      abstract. That works well when a query happens to use the same vocabulary as the paper, but scientific
+      writing is full of synonyms, jargon, and near-misses, a query for "pickup and delivery" won't match a
+      paper that only ever says "vehicle routing", even though the two are closely related. As the volume of
+      published literature keeps growing, that mismatch becomes a bigger obstacle to finding the right paper.
+    </p>
+    <p>
+      There's a second source of signal exact keyword search leaves on the table entirely: many users searching
+      a database like DiVA are themselves published authors. A user's own publication history, and their place
+      in the web of collaborations around them, says a lot about what kind of paper they're actually looking for,
+      the same way a shopping site uses your past purchases to steer your search results. This project explores
+      both ideas: replacing keyword matching with a semantic understanding of a query, and using an author's own
+      research profile to personalize what a semantic search surfaces.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content steps">
+    <h2 class="title is-3">Method</h2>
+    <p>
+      We build three retrieval modes on top of the same Elasticsearch index, standard keyword search as a
+      baseline, semantic search, and personalized search, and compare all three:
+    </p>
+    <ol>
+      <li>Collect the Computer Science subset of KTH's publications from the DiVA archive, and index each
+        paper's title, authors, and abstract in Elasticsearch for lexical (keyword) search.</li>
+      <li>Encode every abstract with a pretrained sentence-transformer model and store the resulting vectors as
+        a <code>dense_vector</code> field, enabling k-nearest-neighbor semantic search.</li>
+      <li>Assign each paper a distribution over research topics with zero-shot classification, and average an
+        author's topic distributions across their past papers into a personal research-interest profile.</li>
+      <li>Build a coauthorship graph connecting authors who have published together, as a proxy for how closely
+        related two authors' interests are likely to be.</li>
+      <li>Simulate real user interactions by generating synthetic search queries from each author's own
+        keywords, scored by the coauthorship distance between the querying author and each paper's authors.</li>
+      <li>Train a learning-to-rank model on these synthetic judgments to rerank a semantic search's results
+        according to the querying author's profile.</li>
+      <li>Evaluate lexical, semantic, and personalized search against each other on a set of manually judged
+        queries, using NDCG@50.</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">From Lexical to Personalized Search</h2>
+    <p>
+      Each retrieval mode builds directly on the one before it: the personalized search reranks the semantic
+      search's results, which in turn is compared against the plain lexical baseline.
+    </p>
+
+    <div class="subsection">
+      <h3 class="title is-4">Standard and Semantic Search</h3>
+      <p>
+        The lexical baseline is a standard Elasticsearch query over each paper's title, authors, and abstract,
+        the kind of search a keyword-matching system would already provide. The semantic option instead applies
+        a general-purpose sentence-transformer model (<code>all-mpnet-base-v2</code>) to every paper's abstract
+        at indexing time, storing the resulting vector as a <code>dense_vector</code> field. At query time, the
+        same model embeds the search query, and a k-nearest-neighbor search over the indexed vectors, using an
+        L2-norm similarity, retrieves and ranks the most semantically related papers. Using sentence-transformer
+        embeddings for literature search this way is a relatively recent idea, with encouraging results already
+        reported in the medical-literature domain<sup class="citation"><a href="#ref-1">[1]</a></sup><sup class="citation"><a href="#ref-6">[6]</a></sup>.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Topic Assignment</h3>
+      <p>
+        To build a usable research-interest profile for each author, we first need a compact representation of
+        what each paper is about. We use a zero-shot classification model
+        (<code>facebook/bart-large-mnli</code><sup class="citation"><a href="#ref-4">[4]</a></sup>) to score every
+        paper against about twenty predefined topic categories, such as "Machine Learning / Deep Learning",
+        "Computer Vision / 3D", or "Natural Language Processing", by encoding the paper's title, abstract, and
+        keywords together with each candidate topic and comparing them in the model's embedding space. This
+        needs no labeled training data, since we can already use the pretrained model.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/method/topic_assignment_example.png" alt="Bar chart of topic probabilities assigned to a paper, with 'Visualisation' dominating at about 0.45 and the remaining probability spread thinly across roughly eighteen other topics.">
+        <figcaption>Topic probabilities assigned to one sample paper. This one lands mostly under "Visualisation", with a smaller amount of probability mass scattered across other topics.</figcaption>
+      </div>
+      <p>
+        Averaging these topic-probability vectors across every paper an author has published gives us a single
+        vector summarizing that author's research interests, which we store as their profile.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Coauthorship Graph</h3>
+      <p>
+        Alongside topical interests, we model collaboration directly: a graph where each node is an author and
+        each edge connects two authors who have coauthored a paper together. Academic collaboration networks are
+        known to exhibit high clustering and small-world structure<sup class="citation"><a href="#ref-7">[7]</a></sup>,
+        meaning authors tend to cluster into communities defined by shared topics of interest, so two authors
+        close together in this graph are a reasonable proxy for two authors with related research interests. In
+        the reranking step, we consider not just an author's direct coauthors but also collaborators up to three
+        degrees of separation away.
+      </p>
+      <div class="figure-row figure-row-thirds">
+        <figure class="figure-card">
+          <img src="./static/images/project/method/coauthor_graph_full.png" alt="The full coauthor graph, drawn as a ring of loosely connected author pairs surrounding a denser core of collaboration clusters.">
+          <figcaption>The whole graph. Authors with only one collaboration sit mostly on the outer ring; the interesting structure is the cluster of clusters in the middle.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/coauthor_graph_zoom1.png" alt="A zoomed-in view of the coauthor graph's central clusters, showing several visually distinct groups of tightly interconnected authors.">
+          <figcaption>Zooming into the center reveals distinct collaboration clusters, confirming the small-world structure the graph is expected to have.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="./static/images/project/method/coauthor_graph_zoom2.png" alt="A further zoomed-in view of one single collaboration cluster, showing individual authors and the coauthorship edges between them.">
+          <figcaption>Zooming further into one cluster shows that a collaboration distance of three is enough to capture most of a cluster's related authors.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Query Generation</h3>
+      <p>
+        Training a reranking model needs example (query, result, relevance) judgments, and we have no real
+        search logs to draw them from. Instead, we simulate user behavior: for every keyword attached to an
+        author's papers, we generate a synthetic query from that author, and score every paper in the dataset
+        against it by the coauthorship distance between the querying author and the paper's authors, from 3
+        (the two have worked together directly) down to 0 (no connection at all). This mirrors the way session
+        or shopping-cart data is used to train two-tower ranking models in industrial
+        settings<sup class="citation"><a href="#ref-2">[2]</a></sup><sup class="citation"><a href="#ref-3">[3]</a></sup>,
+        substituting collaboration distance for the click or purchase signal we don't have.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="title is-4">Model Training</h3>
+      <p>
+        Following the approach described by Jakob<sup class="citation"><a href="#ref-5">[5]</a></sup> for
+        learning-to-rank with Elasticsearch, we train an XGBoost ranking model (<code>XGBRanker</code>) on the
+        synthetic judgments above. Each document is featurized with its lexical relevance to the query
+        (BM25 scores over content and title), a one-hot encoding of its dominant topic, and the querying
+        author's preference score for each topic.
+      </p>
+      <div class="figure-single">
+        <img src="./static/images/project/results/feature_importance.png" alt="Horizontal bar chart of feature importance in the trained reranking model, with content_bm25 and title_bm25 the two largest bars by a wide margin, followed by a long tail of smaller topic- and preference-related features.">
+        <figcaption>Feature importance in the trained reranker. The paper's lexical relevance to the query dominates, but the author's topic preferences make up most of what's left.</figcaption>
+      </div>
+      <p>
+        Once trained, the model can rescore any semantic search's results at query time: we look up the
+        querying author's topic-preference profile and feed it, along with the candidate documents, to the
+        model to produce the final personalized ranking.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Evaluation &amp; Results</h2>
+    <p>
+      We evaluate all three retrieval modes with NDCG@50 (normalized discounted cumulative gain), which rewards
+      relevant results for appearing early in a ranked list:
+    </p>
+    $$
+    NDCG@K = \frac{DCG@K}{IDCG@K}, \qquad DCG@K = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}
+    $$
+    <p>
+      where $rel_i$ is the relevance of the result at rank $i$ (0-3) and $IDCG@K$ is the same sum under the
+      ideal ranking, so $NDCG@K = 1$ exactly when the results are sorted perfectly.
+    </p>
+    <p>
+      To avoid biasing our own judgments, we picked a handful of authors with enough publications to infer their
+      research interests, built a search query from each one's topics, and pooled the top 50 results returned by
+      each of the three retrieval modes, shuffled together so we couldn't tell which method produced which
+      result. Each pooled result was then manually rated 0-3 for relevance before computing NDCG@50 per method.
+    </p>
+    <div class="ndcg-legend">
+      <span><span class="ndcg-legend-swatch lexical"></span>Lexical</span>
+      <span><span class="ndcg-legend-swatch semantic"></span>Semantic</span>
+      <span><span class="ndcg-legend-swatch personalized"></span>Personalized</span>
+    </div>
+    <div class="ndcg-chart">
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "high performance networking algorithms"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 16%;"></div></div><div class="ndcg-bar-val">0.16</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 84%;"></div></div><div class="ndcg-bar-val">0.84</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 59%;"></div></div><div class="ndcg-bar-val">0.59</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "efficient pickup and delivery"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 52%;"></div></div><div class="ndcg-bar-val">0.52</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 78%;"></div></div><div class="ndcg-bar-val">0.78</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 81%;"></div></div><div class="ndcg-bar-val">0.81</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "integrating CNNs with robotics systems"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 21%;"></div></div><div class="ndcg-bar-val">0.21</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 67%;"></div></div><div class="ndcg-bar-val">0.67</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 51%;"></div></div><div class="ndcg-bar-val">0.51</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "modeling new environments"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 0%;"></div></div><div class="ndcg-bar-val">0.00</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 34%;"></div></div><div class="ndcg-bar-val">0.34</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 52%;"></div></div><div class="ndcg-bar-val">0.52</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "machine learning for deliveries"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 34%;"></div></div><div class="ndcg-bar-val">0.34</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 71%;"></div></div><div class="ndcg-bar-val">0.71</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 79%;"></div></div><div class="ndcg-bar-val">0.79</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "sensor integration techniques"</div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 35%;"></div></div><div class="ndcg-bar-val">0.35</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 19%;"></div></div><div class="ndcg-bar-val">0.19</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 20%;"></div></div><div class="ndcg-bar-val">0.20</div></div>
+      </div>
+      <div class="ndcg-query">
+        <div class="ndcg-query-label">Query: "obstacle prediction"</div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Lexical</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill lexical" style="width: 44%;"></div></div><div class="ndcg-bar-val">0.44</div></div>
+        <div class="ndcg-bar-row"><div class="ndcg-bar-name">Semantic</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill semantic" style="width: 55%;"></div></div><div class="ndcg-bar-val">0.55</div></div>
+        <div class="ndcg-bar-row winner"><div class="ndcg-bar-name">Personalized</div><div class="ndcg-bar-track"><div class="ndcg-bar-fill personalized" style="width: 66%;"></div></div><div class="ndcg-bar-val">0.66</div></div>
+      </div>
+    </div>
+    <p>
+      Lexical search wins only on "sensor integration techniques", a query whose wording happens to match niche
+      paper keywords almost exactly. Everywhere else it trails both semantic and personalized search by a wide
+      margin. Between the two, personalized search tends to win on vague, broad queries ("pickup and delivery",
+      "modeling new environments"), where reranking by the author's known interests helps disambiguate what they
+      actually mean, while on queries that are already specific ("integrating CNNs with robotics systems"),
+      plain semantic search does better: the query alone is informative enough that folding in the author's
+      general profile mostly adds noise.
+    </p>
+  </div>
+</section>
+
+
+<section class="section alt-bg">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">Discussion</h2>
+    <p>
+      Both semantic and personalized search clearly outperform exact keyword matching on this dataset, and the
+      pattern in where personalization helps, and where it doesn't, makes intuitive sense: an author profile is
+      most useful exactly when the query itself is underspecified.
+    </p>
+    <p>
+      The biggest caveat is how synthetic our evaluation is on both ends. The relevance judgments used to train
+      the reranker come from coauthorship distance standing in for real user feedback, not from anyone actually
+      searching and clicking; and the results were scored on a small, manually judged set of queries rather than
+      a large benchmark. Both choices were necessary given the lack of real search logs for this dataset, but
+      they mean the NDCG numbers above should be read as suggestive rather than statistically rigorous. The
+      natural next step would be collecting real user interactions, even a small pilot, to train and evaluate
+      the reranker against.
+    </p>
+    <p>
+      The dataset itself is also narrow by design: only the Computer Science subset of KTH-affiliated
+      publications in DiVA. Extending it to more departments, or to a larger literature database, would test
+      whether the coauthor-graph and topic-profile approach to personalization still holds up at a scale closer
+      to a real research-search product.
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">References</h2>
+    <ol class="references-list">
+      <li id="ref-1">
+        S. Asmala. "Improving the search of medical articles using sentence transformers."
+        Master's thesis, Perustieteiden korkeakoulu / SCI, Aalto University, May 2024.
+      </li>
+      <li id="ref-2">
+        J. De La Rúa Martínez, F. Buso, A. Kouzoupis, A. A. Ormenisan, S. Niazi, D. Bzhalava, K. Mak,
+        V. Jouffrey, M. Ronström, R. Cunningham, et al. "The Hopsworks feature store for machine learning."
+        <em>Companion of the 2024 International Conference on Management of Data</em>, pp. 135-147, 2024.
+      </li>
+      <li id="ref-3">
+        Hopsworks. "What is a two-tower embedding model?"
+      </li>
+      <li id="ref-4">
+        HuggingFace. <code>facebook/bart-large-mnli</code>.
+        <a href="https://huggingface.co/facebook/bart-large-mnli" target="_blank" rel="noopener noreferrer">huggingface.co/facebook/bart-large-mnli</a>
+      </li>
+      <li id="ref-5">
+        M. Jakob. "Personalized search with Elasticsearch learning to rank (LTR)." Elastic Search Labs, Nov 2024.
+      </li>
+      <li id="ref-6">
+        A. Jose and S. Harikumar. "COVID-19 semantic search engine using sentence-transformer models."
+        <em>Computational Intelligence, Cyber Security and Computational Models. Recent Trends in Computational
+        Models, Intelligent and Secure Systems</em>, pp. 189-200, Springer International Publishing, 2022.
+      </li>
+      <li id="ref-7">
+        M. E. J. Newman. "The structure of scientific collaboration networks."
+        <em>Proceedings of the National Academy of Sciences</em>, 98(2):404-409, Jan. 2001.
+        <a href="https://doi.org/10.1073/pnas.021544898" target="_blank" rel="noopener noreferrer">doi.org/10.1073/pnas.021544898</a>
+      </li>
+      <li id="ref-8">
+        Y. Yang, D. Cer, A. Ahmad, M. Guo, J. Law, N. Constant, G. H. Abrego, S. Yuan, C. Tar, Y.-H. Sung,
+        B. Strope, and R. Kurzweil. "Multilingual universal sentence encoder for semantic retrieval." 2019.
+        <a href="https://arxiv.org/abs/1907.04307" target="_blank" rel="noopener noreferrer">arXiv:1907.04307</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="./static/pdf/searching-scientific-literature-report.pdf" target="_blank" rel="noopener noreferrer">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <!-- TODO: point this at the real repository once it's published. -->
+      <a class="icon-link external-link" href="#" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This site is adapted from the
+            <a href="https://nerfies.github.io">Nerfies project page</a>, licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

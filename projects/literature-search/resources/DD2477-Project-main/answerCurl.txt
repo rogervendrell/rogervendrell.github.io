@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elasticsearch Tutorial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar bg-dark border-bottom border-body mb-3" data-bs-theme="dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">
+            <img src="/static/elastic-logo.svg" alt="Elastic" width="30" height="24" class="d-inline-block align-text-top">
+            Elasticsearch Tutorial
+          </a>
+        </div>
+      </nav>
+      
+    <form method="POST" action="/">
+      <div class="mb-3">
+          <input type="text" class="form-control" name="query" id="query" placeholder="Enter your search query" value="search with semantic context vectors" autofocus>
+          <label for="semantic_search"> Use Semantic Search </label>
+          <input type="checkbox" name="semantic_search" id="semantic_search" >
+          <div class="form-group">
+            <label for="author">Select Author
+            <select type="select" name="author" class="form-control" id="author">
+              <option value="-1" selected>Default None</option>
+              <option value="1" >1 - Blomkvist Karlsson, Vera</option>
+              <option value="8" >8 - Fredrikson, Rasmus</option>
+              <option value="64" >64 - Jafari, Mikael</option>
+              <option value="967" >967 - Halvardsson, Gustaf</option>
+              <option value="334" >334 - Lundén, Daniel</option>
+            </select>
+          </div>
+      </div>
+    </form>
+    
+        <div class="row mb-3">
+            <div class="col-2 mt-2">
+                <p><a href="javascript:history.back(1)">← Back</a></p>
+                
+            </div>
+            <div class="col-10">
+                <div class="row mb-3">
+                    <div class="col-sm-auto my-auto">
+                        Showing results 1-10 out of 1965.
+                    </div>
+                    
+                    
+                        <div class="col-sm-auto my-auto">
+                            <form method="POST">
+                                <input type="hidden" name="query" value="search with semantic context vectors">
+                                <input type="hidden" name="from_" value="10">
+                                <input type="hidden" name="semantic_search" id="hidden_semantic_search">
+                                <button type="submit" class="btn btn-primary">Next page →</button>
+                            </form>
+                        </div>
+                    
+                    <div class="col"></div>
+                </div>
+                
+                    <p>
+                        1. <b><a href="/document/1713362">Trade-offs between Quality and Efficiency in Multilingual Dense Retrieval (Avvägningar mellan kvalitet och effektivitet i f lerspråkig tät informationssökning)</a></b>
+                        <br>
+                        
+                            Schüldt, Emma;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 18.839327)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        2. <b><a href="/document/1116765">Using semantic folding with TextRank for automatic summarization (Semantisk vikning med TextRank för automatisk sammanfattning)</a></b>
+                        <br>
+                        
+                            Karlsson, Simon;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 13.499237)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        3. <b><a href="/document/755363">Context Knowledge Base for Ontology Integration</a></b>
+                        <br>
+                        
+                            Wu, Dan;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 11.142573)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        4. <b><a href="/document/419628">Semantic Mapping with Mobile Robots</a></b>
+                        <br>
+                        
+                            Pronobis, Andrzej;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 10.445911)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        5. <b><a href="/document/1474721">Training Multi-Task Deep Neural Networks with Disjoint Datasets (Träning av djupa neurala nätverk för flera uppgifter med osammanhängande dataset)</a></b>
+                        <br>
+                        
+                            Vaessen, Nik;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 10.276982)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        6. <b><a href="/document/762678">Video content annotation automation using machine learning techniques (Automatisk annotering av videomaterial med hjalp av maskininlarningstekniker)</a></b>
+                        <br>
+                        
+                            Bodin, Erik;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 9.741624)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        7. <b><a href="/document/1597267">A comparison of two tree-search based algorithms for playing 3-dimensional Connect Four (En jämförelse av två trädsöksalgoritmer för att spela tredimensionellt Fyra i rad)</a></b>
+                        <br>
+                        
+                            Avellan-Hultman, David;
+                        
+                            Gunnberg Querat, Emil;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 9.0848)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        8. <b><a href="/document/762854">Learning to Rank Using Implicit Feedback andActive Exploration : Applying the Glicko Rating System to a People-Search Context</a></b>
+                        <br>
+                        
+                            TÕNISSON, MEIDI;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 8.816305)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        9. <b><a href="/document/1606032">Semantic UFOMap : Semantic Information in Octree Occupancy Maps (Semantic UFOMap : Semantisk Information för Octree Robotkartor)</a></b>
+                        <br>
+                        
+                            von Platen, Edvin;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 8.451181)</i>
+                        </small>
+                    </p>
+                
+                    <p>
+                        10. <b><a href="/document/1596673">Search methods for Strategy Synthesis for Multi-Agent Games of Imperfect Information</a></b>
+                        <br>
+                        
+                            Jernbäcker, Axel;
+                        
+                            Junestrand, Max;
+                        
+                        <br>
+                        <small>
+                            <!-- Category: .
+                            Last updated: . -->
+                            <i>(Score: 8.451122)</i>
+                        </small>
+                    </p>
+                
+            </div>
+        </div>
+
+        <script>
+                const checkbox = document.getElementById('semantic_search');
+                const hiddenInput = document.getElementById('hidden_semantic_search');
+            
+                if (checkbox && hiddenInput) {
+                    checkbox.addEventListener('click', function() {
+                        if (this.checked) {
+                            hiddenInput.value = "True";  // set to "True" if checked
+                        } else {
+                            hiddenInput.value = "False";      // clear if unchecked
+                        }
+                    });
+                }
+        </script>
+            
+    
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>
