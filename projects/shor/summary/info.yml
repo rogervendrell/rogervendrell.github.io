@@ -1,0 +1,24 @@
+title: "A from-scratch Qiskit implementation of Shor's Factoring Algorithm"
+year: 2024
+short_description: >
+  A from-scratch Qiskit implementation of Shor's factoring algorithm, built around a
+  2n+3 qubit order-finding circuit.
+thumbnail: thumbnail.png
+thumbnail_alt: >
+  Diagram: a number goes into a quantum order-finding circuit, which reveals a hidden
+  period, which is used to compute the number's two prime factors.
+tags: [Shor's Algorithm, Quantum Computing, Qiskit, Quantum Fourier Transform, Integer Factorization, RSA]
+collaborators:
+  - name: Florian Jerome Immig
+    url: https://www.linkedin.com/in/florian-immig/
+  - name: Georgios Vidalakis
+    url: https://www.linkedin.com/in/georgios-vidalakis/
+  - name: Roger Vendrell Colet
+    url: https://www.linkedin.com/in/roger-vendrell-colet/
+links:
+  - label: Report
+    url: static/pdf/shors-algorithm-report.pdf
+    icon: fas fa-file-pdf
+  - label: Code
+    url: https://github.com/rogervendrell/shors-factoring-algorithm
+    icon: fab fa-github

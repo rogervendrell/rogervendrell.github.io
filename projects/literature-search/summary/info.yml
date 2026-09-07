@@ -1,0 +1,27 @@
+title: "Semantic and Personalized Search for KTH's Scientific Literature"
+year: 2025
+short_description: >
+  A semantic and author-personalized search engine for KTH's computer science literature,
+  built with Elasticsearch, sentence transformers, a coauthorship graph, and a
+  learning-to-rank reranker.
+thumbnail: thumbnail.png
+thumbnail_alt: >
+  A network graph of KTH Computer Science authors, drawn as a large ring of loosely
+  connected pairs surrounding a dense core of tightly-knit collaboration clusters.
+tags: [Information Retrieval, Semantic Search, Elasticsearch, Sentence Transformers, Learning to Rank, Personalized Search, Coauthorship Graph]
+collaborators:
+  - name: Georges Tohme
+    url: https://www.linkedin.com/in/georges-tohme-ba901224b/
+  - name: Annysia Dupaya
+    url: https://www.linkedin.com/in/annysia-dupaya/
+  - name: Gustaw Siedlarski
+    url: https://www.linkedin.com/in/gustaw-siedlarski-747064193/
+  - name: Roger Vendrell Colet
+    url: https://www.linkedin.com/in/roger-vendrell-colet/
+links:
+  - label: Report
+    url: static/pdf/searching-scientific-literature-report.pdf
+    icon: fas fa-file-pdf
+  - label: Code
+    url: https://github.com/rogervendrell/literature-search
+    icon: fab fa-github

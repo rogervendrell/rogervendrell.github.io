@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Projects by Roger Vendrell Colet.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects - Roger Vendrell Colet</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+<!-- This page is generated from each project's summary/info.yml by
+     scripts/generate_projects_index.py -- see projects/SUMMARY_SCHEMA.md.
+     Edit the info.yml files (or the template below) and re-run the script
+     rather than hand-editing the project list. -->
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="../index.html">
+        <span class="icon"><i class="fas fa-home"></i></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero about-me">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-vcentered">
+        <div class="column is-two-thirds">
+          <h1 class="title is-1 publication-title">Roger Vendrell Colet</h1>
+          <!-- TODO: replace this placeholder bio with your own. -->
+          <div class="content about-bio">
+            <p>
+              Add a short bio here: who you are, what you work on, and what ties these
+              projects together. A couple of sentences is plenty.
+            </p>
+          </div>
+          <div class="about-links">
+            <!-- TODO: add/remove contact links as needed. -->
+            <a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            /
+            <a href="https://github.com/rogervendrell" target="_blank" rel="noopener noreferrer">GitHub</a>
+            /
+            <a href="mailto:rogervendrellcolet@gmail.com">Email</a>
+          </div>
+        </div>
+        <div class="column is-one-third has-text-centered">
+          <!-- TODO: replace with a real photo, e.g. static/img/profile.jpg -->
+          <div class="about-photo-placeholder">
+            <span>RVC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Projects</h2>
+    <div class="project-list">
+
+    <div class="project-entry">
+      <div class="project-thumb">
+        <a href="jpeg/index.html">
+          <img src="jpeg/summary/thumbnail.png" alt="An 8x8 grid of 64 two-dimensional DCT basis patterns, ranging from a flat gray square to fine checkerboards.">
+        </a>
+      </div>
+      <div class="project-text">
+        <h3 class="title is-4"><a href="jpeg/index.html">JPEG Image Compression</a></h3>
+        <div class="is-size-6 publication-authors">
+              <span class="author-block"><a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">Roger Vendrell Colet</a></span>
+        </div>
+        <p class="project-description">A from-scratch DCT-based image and video compression pipeline: quantization, zigzag scanning, and Huffman coding, following the design of the JPEG standard.</p>
+        <div class="tag-pills">
+<span class="tag-pill">JPEG</span>
+<span class="tag-pill">DCT</span>
+<span class="tag-pill">Image Compression</span>
+<span class="tag-pill">Video Compression</span>
+<span class="tag-pill">Huffman Coding</span>
+</div>
+        <div class="project-links">
+<span class="link-block">
+            <a href="https://github.com/rogervendrell/jpeg-image-compression" target="_blank" rel="noopener noreferrer"
+               class="external-link button is-small is-rounded is-dark">
+              <span class="icon"><i class="fab fa-github"></i></span>
+              <span>Code</span>
+            </a>
+          </span>
+</div>
+      </div>
+    </div>
+
+    <div class="project-entry">
+      <div class="project-thumb">
+        <a href="literature-search/index.html">
+          <img src="literature-search/summary/thumbnail.png" alt="A network graph of KTH Computer Science authors, drawn as a large ring of loosely connected pairs surrounding a dense core of tightly-knit collaboration clusters.">
+        </a>
+      </div>
+      <div class="project-text">
+        <h3 class="title is-4"><a href="literature-search/index.html">Semantic and Personalized Search for KTH&#x27;s Scientific Literature</a></h3>
+        <div class="is-size-6 publication-authors">
+              <span class="author-block"><a href="https://www.linkedin.com/in/georges-tohme-ba901224b/" target="_blank" rel="noopener noreferrer">Georges Tohme</a></span>,
+              <span class="author-block"><a href="https://www.linkedin.com/in/annysia-dupaya/" target="_blank" rel="noopener noreferrer">Annysia Dupaya</a></span>,
+              <span class="author-block"><a href="https://www.linkedin.com/in/gustaw-siedlarski-747064193/" target="_blank" rel="noopener noreferrer">Gustaw Siedlarski</a></span>,
+              <span class="author-block"><a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">Roger Vendrell Colet</a></span>
+        </div>
+        <p class="project-description">A semantic and author-personalized search engine for KTH&#x27;s computer science literature, built with Elasticsearch, sentence transformers, a coauthorship graph, and a learning-to-rank reranker.</p>
+        <div class="tag-pills">
+<span class="tag-pill">Information Retrieval</span>
+<span class="tag-pill">Semantic Search</span>
+<span class="tag-pill">Elasticsearch</span>
+<span class="tag-pill">Sentence Transformers</span>
+<span class="tag-pill">Learning to Rank</span>
+<span class="tag-pill">Personalized Search</span>
+<span class="tag-pill">Coauthorship Graph</span>
+</div>
+        <div class="project-links">
+<span class="link-block">
+            <a href="literature-search/static/pdf/searching-scientific-literature-report.pdf" target="_blank" rel="noopener noreferrer"
+               class="external-link button is-small is-rounded is-dark">
+              <span class="icon"><i class="fas fa-file-pdf"></i></span>
+              <span>Report</span>
+            </a>
+          </span>
+<span class="link-block">
+            <a href="https://github.com/rogervendrell/literature-search" target="_blank" rel="noopener noreferrer"
+               class="external-link button is-small is-rounded is-dark">
+              <span class="icon"><i class="fab fa-github"></i></span>
+              <span>Code</span>
+            </a>
+          </span>
+</div>
+      </div>
+    </div>
+
+    <div class="project-entry">
+      <div class="project-thumb">
+        <a href="shor/index.html">
+          <img src="shor/summary/thumbnail.png" alt="Diagram: a number goes into a quantum order-finding circuit, which reveals a hidden period, which is used to compute the number&#x27;s two prime factors.">
+        </a>
+      </div>
+      <div class="project-text">
+        <h3 class="title is-4"><a href="shor/index.html">A from-scratch Qiskit implementation of Shor&#x27;s Factoring Algorithm</a></h3>
+        <div class="is-size-6 publication-authors">
+              <span class="author-block"><a href="https://www.linkedin.com/in/florian-immig/" target="_blank" rel="noopener noreferrer">Florian Jerome Immig</a></span>,
+              <span class="author-block"><a href="https://www.linkedin.com/in/georgios-vidalakis/" target="_blank" rel="noopener noreferrer">Georgios Vidalakis</a></span>,
+              <span class="author-block"><a href="https://www.linkedin.com/in/roger-vendrell-colet/" target="_blank" rel="noopener noreferrer">Roger Vendrell Colet</a></span>
+        </div>
+        <p class="project-description">A from-scratch Qiskit implementation of Shor&#x27;s factoring algorithm, built around a 2n+3 qubit order-finding circuit.</p>
+        <div class="tag-pills">
+<span class="tag-pill">Shor&#x27;s Algorithm</span>
+<span class="tag-pill">Quantum Computing</span>
+<span class="tag-pill">Qiskit</span>
+<span class="tag-pill">Quantum Fourier Transform</span>
+<span class="tag-pill">Integer Factorization</span>
+<span class="tag-pill">RSA</span>
+</div>
+        <div class="project-links">
+<span class="link-block">
+            <a href="shor/static/pdf/shors-algorithm-report.pdf" target="_blank" rel="noopener noreferrer"
+               class="external-link button is-small is-rounded is-dark">
+              <span class="icon"><i class="fas fa-file-pdf"></i></span>
+              <span>Report</span>
+            </a>
+          </span>
+<span class="link-block">
+            <a href="https://github.com/rogervendrell/shors-factoring-algorithm" target="_blank" rel="noopener noreferrer"
+               class="external-link button is-small is-rounded is-dark">
+              <span class="icon"><i class="fab fa-github"></i></span>
+              <span>Code</span>
+            </a>
+          </span>
+</div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            The project pages themselves are adapted from the
+            <a href="https://nerfies.github.io">Nerfies project page</a>, licensed
+            under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>. This homepage's
+            layout is inspired by
+            <a href="https://pratulsrinivasan.github.io/" target="_blank" rel="noopener noreferrer">pratulsrinivasan.github.io</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

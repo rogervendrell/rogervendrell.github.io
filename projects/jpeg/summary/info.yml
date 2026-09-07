@@ -1,0 +1,17 @@
+title: "JPEG Image Compression"
+year: 2025
+short_description: >
+  A from-scratch DCT-based image and video compression pipeline: quantization, zigzag
+  scanning, and Huffman coding, following the design of the JPEG standard.
+thumbnail: thumbnail.png
+thumbnail_alt: >
+  An 8x8 grid of 64 two-dimensional DCT basis patterns, ranging from a flat gray square
+  to fine checkerboards.
+tags: [JPEG, DCT, Image Compression, Video Compression, Huffman Coding]
+collaborators:
+  - name: Roger Vendrell Colet
+    url: https://www.linkedin.com/in/roger-vendrell-colet/
+links:
+  - label: Code
+    url: https://github.com/rogervendrell/jpeg-image-compression
+    icon: fab fa-github

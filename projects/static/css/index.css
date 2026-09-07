@@ -1,0 +1,148 @@
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+.publication-title {
+  font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors {
+  font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors a {
+  color: hsl(204, 86%, 53%) !important;
+}
+
+.publication-authors a:hover {
+  text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+/* About-me hero */
+.about-me {
+  padding-top: 2.5rem;
+  padding-bottom: 1rem;
+}
+
+.about-bio {
+  margin-top: 1rem;
+  color: #444;
+}
+
+.about-links {
+  margin-top: 1rem;
+  font-family: 'Google Sans', sans-serif;
+}
+
+.about-links a {
+  color: hsl(204, 86%, 40%);
+}
+
+.about-links a:hover {
+  text-decoration: underline;
+}
+
+.about-photo-placeholder {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  border: 2px dashed #ddd;
+  border-radius: 10px;
+  background: #f9f9fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  color: #bbb;
+}
+
+
+/* Project list */
+.project-list {
+  margin-top: 1.5rem;
+}
+
+.project-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.75rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.project-entry:last-child {
+  border-bottom: none;
+}
+
+.project-thumb {
+  flex: 0 1 200px;
+  max-width: 200px;
+}
+
+.project-thumb img {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.project-text {
+  flex: 1 1 380px;
+}
+
+.project-text .title {
+  margin-bottom: 0.5rem;
+}
+
+.project-text .title a {
+  color: #222;
+}
+
+.project-text .title a:hover {
+  color: hsl(204, 86%, 45%);
+}
+
+.project-description {
+  margin-top: 0.75rem;
+  color: #444;
+}
+
+.tag-pills {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag-pill {
+  font-size: 0.78rem;
+  color: #666;
+  background: #f2f2f5;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+}
+
+.project-links {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+
+@media screen and (max-width: 768px) {
+  .project-entry {
+    flex-direction: column;
+  }
+
+  .project-thumb {
+    max-width: 100%;
+  }
+}
